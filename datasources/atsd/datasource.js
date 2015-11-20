@@ -1,12 +1,12 @@
 define([
     'angular',
     'lodash',
-    'kbn',
+    'app/core/utils/datemath',
     'moment',
     './directives',
     './queryCtrl',
   ],
-  function (angular, _, kbn) {
+  function (angular, _, dateMath) {
     'use strict';
 
     var module = angular.module('grafana.services');
@@ -37,8 +37,8 @@ define([
       AtsdDatasource.prototype.query = function (options) {
         console.log('options: ' + JSON.stringify(options));
 
-        var start = _convertToAtsdTime(options.range.from);
-        var end = _convertToAtsdTime(options.range.to);
+        var start = _convertToAtsdTime(options.range.from, false);
+        var end = _convertToAtsdTime(options.range.to, true);
         var qs = [];
 
         _.each(options.targets, function (target) {
@@ -577,10 +577,10 @@ define([
         return query;
       }
 
-      function _convertToAtsdTime(date) {
+      function _convertToAtsdTime(date, roundUp) {
         date = date !== 'now' ? date : new Date();
-        date = kbn.parseDate(date);
-
+        date = dateMath.parse(date, roundUp);
+        
         return date.toISOString();
       }
 
